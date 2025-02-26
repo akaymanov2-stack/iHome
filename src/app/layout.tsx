@@ -7,7 +7,7 @@ import Footer from '@/components/layout/Footer';
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
 export const metadata: Metadata = {
-  title: 'uRema - Когнитивные технологии маркетинга',
+  title: 'uRema - Когнитивные технологии',
   description: 'Современные решения для маркетинга: dataDriven, AI и WEB3',
 };
 
