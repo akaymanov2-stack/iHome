@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
 export const metadata: Metadata = {
   title: 'uRema - Когнитивные технологии маркетинга',
-  description: 'Современные решения для умного дома: автоматизация, безопасность и комфорт',
+  description: 'Современные решения для маркетинга: dataDriven, AI и WEB3',
 };
 
 export default function RootLayout({
