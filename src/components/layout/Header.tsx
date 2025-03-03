@@ -10,7 +10,7 @@ const Header: React.FC = () => {
           <Link href="/" className="flex items-center">
             <Image
               src="/urema333.jpg"
-              alt="uRema Cognitive"
+              alt="uRema Cognitiv's"
               width={100}
               height={100}
               className="h-20 w-auto pl-2"
@@ -19,16 +19,16 @@ const Header: React.FC = () => {
           
           <nav className="hidden md:flex space-x-8">
             <Link href="/products" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Продукты
+              Инструменты
             </Link>
             <Link href="/solutions" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Решения
-            </Link>
-            <Link href="/support" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Поддержка
+              Кейсы
             </Link>
             <Link href="/about" className="text-gray-700 hover:text-blue-600 transition-colors">
-              О компании
+              О нас
+            </Link>
+            <Link href="/blog" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Блог о WEB3
             </Link>
           </nav>
 

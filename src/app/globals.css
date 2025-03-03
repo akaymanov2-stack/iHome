@@ -10,4 +10,28 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+}
+
+.features-swiper {
+  padding: 20px 0 60px;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #2563eb !important;
+}
+
+.swiper-pagination-bullet {
+  background: #2563eb !important;
+}
+
+.swiper-slide {
+  height: auto !important;
+}
+
+.features-swiper .swiper-slide > div {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 } 
