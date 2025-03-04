@@ -5,6 +5,13 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+}
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -15,12 +22,7 @@ export interface BlogPost {
   category_id: string;
   tags: string[];
   updated_at: string;
-  category?: {
-    id: string;
-    name: string;
-    slug: string;
-    created_at: string;
-  };
+  category?: Category;
 }
 
 export interface CreateBlogPostInput {
@@ -32,12 +34,45 @@ export interface CreateBlogPostInput {
   tags: string[];
 }
 
+export async function getCategories(): Promise<Category[]> {
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getCategories:', error);
+    throw new Error('Failed to fetch categories');
+  }
+}
+
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog`);
-  if (!response.ok) {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching blog posts:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getBlogPosts:', error);
     throw new Error('Failed to fetch blog posts');
   }
-  return response.json();
 }
 
 export async function createBlogPost(post: CreateBlogPostInput): Promise<BlogPost> {
@@ -57,12 +92,27 @@ export async function createBlogPost(post: CreateBlogPostInput): Promise<BlogPos
 }
 
 export async function getBlogPostById(id: string): Promise<BlogPost | null> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog/${id}`);
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching blog post:', error);
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
     }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getBlogPostById:', error);
     throw new Error('Failed to fetch blog post');
   }
-  return response.json();
 } 

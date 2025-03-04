@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getBlogPosts, createBlogPost, type BlogPost } from '@/utils/supabase';
+import { getBlogPosts, createBlogPost, type BlogPost, getCategories, Category } from '@/utils/supabase';
 
 export default function BlogManagement() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newPost, setNewPost] = useState({
@@ -26,6 +27,7 @@ export default function BlogManagement() {
     }
     
     loadPosts();
+    loadCategories();
   }, [router]);
 
   async function loadPosts() {
@@ -37,6 +39,15 @@ export default function BlogManagement() {
       console.error('Error loading posts:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadCategories() {
+    try {
+      const data = await getCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error loading categories:', error);
     }
   }
 
@@ -123,14 +134,20 @@ export default function BlogManagement() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">ID категории</label>
-          <input
-            type="text"
+          <label className="block text-sm font-medium mb-1">Категория</label>
+          <select
             value={newPost.category_id}
             onChange={(e) => setNewPost({ ...newPost, category_id: e.target.value })}
             className="w-full p-2 border rounded"
             required
-          />
+          >
+            <option value="">Выберите категорию</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -162,6 +179,7 @@ export default function BlogManagement() {
             <h3 className="font-medium">{post.title}</h3>
             <p className="text-sm text-gray-600">Автор: {post.author}</p>
             <p className="text-sm text-gray-600">Дата: {new Date(post.created_at).toLocaleDateString()}</p>
+            <p className="text-sm text-gray-600">Категория: {post.category?.name}</p>
           </div>
         ))}
       </div>
