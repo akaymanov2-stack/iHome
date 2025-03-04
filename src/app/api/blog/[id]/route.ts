@@ -1,28 +1,32 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabase } from '@/lib/supabase';
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('id', params.id)
-    .single();
+  try {
+    const { data: post, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .eq('id', params.id)
+      .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error('Error fetching blog post:', error);
+      return NextResponse.json({ error: 'Failed to fetch blog post' }, { status: 500 });
+    }
+
+    if (!post) {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(post);
+  } catch (error) {
+    console.error('Error in blog post API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  if (!data) {
-    return NextResponse.json({ error: 'Post not found' }, { status: 404 });
-  }
-
-  return NextResponse.json(data);
 } 
