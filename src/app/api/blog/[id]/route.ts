@@ -6,6 +6,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (!params.id) {
+      return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
+    }
+
     const { data: post, error } = await supabase
       .from('blog_posts')
       .select(`
@@ -17,6 +21,9 @@ export async function GET(
 
     if (error) {
       console.error('Error fetching blog post:', error);
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+      }
       return NextResponse.json({ error: 'Failed to fetch blog post' }, { status: 500 });
     }
 

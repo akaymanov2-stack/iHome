@@ -13,63 +13,63 @@ interface BlogPostPageProps {
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getBlogPostById(params.id);
+  try {
+    const post = await getBlogPostById(params.id);
+    
+    if (!post) {
+      notFound();
+    }
 
-  if (!post) {
-    notFound();
-  }
+    const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${post.id}`;
 
-  const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${post.id}`;
-
-  return (
-    <article className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    return (
+      <article className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+          <div className="flex items-center text-gray-600 mb-4">
+            <span>{post.author}</span>
+            <span className="mx-2">•</span>
+            <time dateTime={post.created_at}>
+              {new Date(post.created_at).toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+          </div>
           {post.image_url && (
-            <div className="relative h-[400px] w-full">
+            <div className="relative w-full h-[400px] mb-8">
               <Image
                 src={post.image_url}
                 alt={post.title}
                 fill
-                className="object-cover"
+                className="object-cover rounded-lg"
                 priority
               />
             </div>
           )}
-          
-          <div className="p-8">
-            <div className="flex items-center text-sm text-gray-500 mb-6">
-              <span>{new Date(post.created_at).toLocaleDateString('ru-RU')}</span>
-              <span className="mx-2">•</span>
-              <span>{post.author}</span>
-            </div>
-
-            <h1 className="text-4xl font-bold text-gray-900 mb-6">
-              {post.title}
-            </h1>
-
-            <div className="prose prose-lg max-w-none mb-8">
-              {post.content.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-4">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-
-            <div className="border-t border-gray-200 pt-6">
-              <ShareButtons title={post.title} url={postUrl} />
-            </div>
-          </div>
+          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
 
-        <Comments postId={post.id} />
+        <div className="border-t pt-8">
+          <ShareButtons url={postUrl} title={post.title} />
+        </div>
 
-        <RelatedPosts 
-          currentPostId={post.id}
-          categoryId={post.category_id}
-          tags={post.tags}
-        />
-      </div>
-    </article>
-  );
+        <div className="mt-12">
+          <Comments postId={post.id} />
+        </div>
+
+        <div className="mt-12">
+          <RelatedPosts 
+            currentPostId={post.id}
+            categoryId={post.category_id}
+            tags={post.tags}
+          />
+        </div>
+      </article>
+    );
+  } catch (error) {
+    console.error('Error in blog post page:', error);
+    throw new Error('Failed to load blog post');
+  }
 } 
