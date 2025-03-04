@@ -12,6 +12,15 @@ export interface BlogPost {
   created_at: string;
   author: string;
   image_url?: string;
+  category_id: string;
+  tags: string[];
+  updated_at: string;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    created_at: string;
+  };
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
