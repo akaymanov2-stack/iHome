@@ -33,7 +33,7 @@ export interface CreateBlogPostInput {
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const response = await fetch('/api/blog');
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog`);
   if (!response.ok) {
     throw new Error('Failed to fetch blog posts');
   }
@@ -41,7 +41,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function createBlogPost(post: CreateBlogPostInput): Promise<BlogPost> {
-  const response = await fetch('/api/blog', {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ export async function createBlogPost(post: CreateBlogPostInput): Promise<BlogPos
 }
 
 export async function getBlogPostById(id: string): Promise<BlogPost | null> {
-  const response = await fetch(`/api/blog/${id}`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog/${id}`);
   if (!response.ok) {
     if (response.status === 404) {
       return null;

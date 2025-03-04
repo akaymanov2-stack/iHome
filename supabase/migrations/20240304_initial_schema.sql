@@ -21,7 +21,7 @@ CREATE TABLE blog_posts (
     author VARCHAR(255) NOT NULL,
     image_url TEXT,
     category_id UUID REFERENCES categories(id),
-    tags TEXT[],
+    tags TEXT[] DEFAULT '{}',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -59,4 +59,26 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_blog_posts_updated_at
     BEFORE UPDATE ON blog_posts
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column(); 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Добавление тестовых данных
+INSERT INTO categories (name, slug) VALUES
+    ('Интерьер', 'interior'),
+    ('Ремонт', 'repair'),
+    ('Дизайн', 'design'),
+    ('Советы', 'tips');
+
+-- Добавление тестового поста
+INSERT INTO blog_posts (title, content, author, image_url, category_id, tags)
+SELECT 
+    'Тестовый пост',
+    'Это тестовый пост для проверки функциональности блога.',
+    'Администратор',
+    'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace',
+    id,
+    ARRAY['тест', 'проверка']
+FROM categories WHERE slug = 'interior';
+
+SELECT * FROM categories;
+
+SELECT * FROM blog_posts; 
