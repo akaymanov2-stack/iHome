@@ -2,42 +2,50 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { getBlogPosts, type BlogPost } from '@/utils/supabase';
 
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-  author: string;
-}
-
-export default function Blog() {
+export default function BlogComponent() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // В реальном приложении здесь будет запрос к API
-    const mockPosts: BlogPost[] = [
-      {
-        id: '1',
-        title: 'Введение в Web3',
-        content: 'Web3 - это следующее поколение интернета, которое обещает сделать его более децентрализованным, безопасным и прозрачным. В этой статье мы рассмотрим основные концепции и технологии, лежащие в основе Web3...',
-        date: '2024-02-20',
-        author: 'Admin'
+    async function loadPosts() {
+      try {
+        const fetchedPosts = await getBlogPosts();
+        setPosts(fetchedPosts);
+      } catch (err) {
+        setError('Ошибка при загрузке постов');
+        console.error('Error loading posts:', err);
+      } finally {
+        setLoading(false);
       }
-    ];
-    
-    // Имитация загрузки данных
-    setTimeout(() => {
-      setPosts(mockPosts);
-      setLoading(false);
-    }, 1000);
+    }
+
+    loadPosts();
   }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <p className="text-xl font-semibold">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Попробовать снова
+          </button>
+        </div>
       </div>
     );
   }
@@ -58,9 +66,19 @@ export default function Blog() {
               key={post.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
+              {post.image_url && (
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={post.image_url}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex items-center text-sm text-gray-500 mb-4">
-                  <span>{post.date}</span>
+                  <span>{new Date(post.created_at).toLocaleDateString('ru-RU')}</span>
                   <span className="mx-2">•</span>
                   <span>{post.author}</span>
                 </div>

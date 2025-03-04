@@ -2,61 +2,74 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-  author: string;
-}
+import { getBlogPosts, createBlogPost, type BlogPost } from '@/utils/supabase';
 
 export default function BlogManagement() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
-    author: ''
+    author: '',
+    image_url: ''
   });
   const router = useRouter();
 
   useEffect(() => {
-    // Проверка авторизации
     const isAuth = localStorage.getItem('adminAuth');
     if (!isAuth) {
       router.push('/admin/login');
+      return;
     }
     
-    // Загрузка постов (в реальном приложении через API)
-    const mockPosts: BlogPost[] = [
-      {
-        id: '1',
-        title: 'Введение в Web3',
-        content: 'Web3 - это следующее поколение интернета...',
-        date: '2024-02-20',
-        author: 'Admin'
-      }
-    ];
-    setPosts(mockPosts);
+    loadPosts();
   }, [router]);
+
+  async function loadPosts() {
+    try {
+      const fetchedPosts = await getBlogPosts();
+      setPosts(fetchedPosts);
+    } catch (err) {
+      setError('Ошибка при загрузке постов');
+      console.error('Error loading posts:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const post: BlogPost = {
-      id: Date.now().toString(),
-      ...newPost,
-      date: new Date().toISOString().split('T')[0]
-    };
-    
-    setPosts([...posts, post]);
-    setNewPost({ title: '', content: '', author: '' });
+    try {
+      const post = await createBlogPost(newPost);
+      if (post) {
+        setPosts([post, ...posts]);
+        setNewPost({ title: '', content: '', author: '', image_url: '' });
+      }
+    } catch (err) {
+      setError('Ошибка при создании поста');
+      console.error('Error creating post:', err);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Управление блогом</h1>
       
-      {/* Форма добавления поста */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="mb-8 bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Добавить новый пост</h2>
         <div className="space-y-4">
@@ -81,6 +94,16 @@ export default function BlogManagement() {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">URL изображения</label>
+            <input
+              type="url"
+              value={newPost.image_url}
+              onChange={(e) => setNewPost({ ...newPost, image_url: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">Содержание</label>
             <textarea
               value={newPost.content}
@@ -99,14 +122,20 @@ export default function BlogManagement() {
         </div>
       </form>
 
-      {/* Список постов */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Существующие посты</h2>
         {posts.map((post) => (
           <div key={post.id} className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-lg font-medium">{post.title}</h3>
-            <p className="text-sm text-gray-500">Автор: {post.author} | Дата: {post.date}</p>
+            <p className="text-sm text-gray-500">
+              Автор: {post.author} | Дата: {new Date(post.created_at).toLocaleDateString('ru-RU')}
+            </p>
             <p className="mt-2">{post.content}</p>
+            {post.image_url && (
+              <p className="text-sm text-gray-500 mt-2">
+                Изображение: {post.image_url}
+              </p>
+            )}
           </div>
         ))}
       </div>
