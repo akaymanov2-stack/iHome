@@ -39,16 +39,12 @@ export async function createBlogPost(post: Omit<BlogPost, 'id' | 'created_at'>):
 }
 
 export async function getBlogPostById(id: string): Promise<BlogPost | null> {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) {
-    console.error('Error fetching blog post:', error);
-    return null;
+  const response = await fetch(`/api/blog/${id}`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null;
+    }
+    throw new Error('Failed to fetch blog post');
   }
-
-  return data;
+  return response.json();
 } 
