@@ -1,9 +1,11 @@
 import Image from 'next/image';
 import { getBlogPostById } from '@/utils/supabase';
 import { notFound } from 'next/navigation';
-import Comments from '@/components/Comments';
-import ShareButtons from '@/components/ShareButtons';
-import RelatedPosts from '@/components/RelatedPosts';
+import { supabase } from '@/lib/supabase';
+import { Comments } from '@/components/blog/Comments';
+import { ShareButtons } from '@/components/blog/ShareButtons';
+import { RelatedPosts } from '@/components/blog/RelatedPosts';
+import { BlogPost } from '@/types/blog';
 
 interface BlogPostPageProps {
   params: {
