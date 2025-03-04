@@ -24,24 +24,36 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  try {
+    const body = await request.json();
 
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert([
-      {
-        title: body.title,
-        content: body.content,
-        author: body.author,
-        image_url: body.image_url
-      }
-    ])
-    .select()
-    .single();
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert([
+        {
+          title: body.title,
+          content: body.content,
+          author: body.author,
+          image_url: body.image_url,
+          category_id: body.category_id,
+          tags: body.tags,
+          updated_at: new Date().toISOString()
+        }
+      ])
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error('Error creating blog post:', error);
+      return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error in blog post creation API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 } 

@@ -23,6 +23,15 @@ export interface BlogPost {
   };
 }
 
+export interface CreateBlogPostInput {
+  title: string;
+  content: string;
+  author: string;
+  image_url?: string;
+  category_id: string;
+  tags: string[];
+}
+
 export async function getBlogPosts(): Promise<BlogPost[]> {
   const response = await fetch('/api/blog');
   if (!response.ok) {
@@ -31,7 +40,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   return response.json();
 }
 
-export async function createBlogPost(post: Omit<BlogPost, 'id' | 'created_at'>): Promise<BlogPost> {
+export async function createBlogPost(post: CreateBlogPostInput): Promise<BlogPost> {
   const response = await fetch('/api/blog', {
     method: 'POST',
     headers: {

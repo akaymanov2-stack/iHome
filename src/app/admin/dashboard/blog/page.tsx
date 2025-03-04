@@ -12,7 +12,9 @@ export default function BlogManagement() {
     title: '',
     content: '',
     author: '',
-    image_url: ''
+    image_url: '',
+    category_id: '',
+    tags: [] as string[]
   });
   const router = useRouter();
 
@@ -28,29 +30,36 @@ export default function BlogManagement() {
 
   async function loadPosts() {
     try {
-      const fetchedPosts = await getBlogPosts();
-      setPosts(fetchedPosts);
-    } catch (err) {
+      const data = await getBlogPosts();
+      setPosts(data);
+    } catch (error) {
       setError('Ошибка при загрузке постов');
-      console.error('Error loading posts:', err);
+      console.error('Error loading posts:', error);
     } finally {
       setLoading(false);
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
       const post = await createBlogPost(newPost);
       if (post) {
         setPosts([post, ...posts]);
-        setNewPost({ title: '', content: '', author: '', image_url: '' });
+        setNewPost({
+          title: '',
+          content: '',
+          author: '',
+          image_url: '',
+          category_id: '',
+          tags: []
+        });
       }
-    } catch (err) {
+    } catch (error) {
       setError('Ошибка при создании поста');
-      console.error('Error creating post:', err);
+      console.error('Error creating post:', error);
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -61,7 +70,7 @@ export default function BlogManagement() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Управление блогом</h1>
       
       {error && (
@@ -70,72 +79,89 @@ export default function BlogManagement() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mb-8 bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Добавить новый пост</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Заголовок</label>
-            <input
-              type="text"
-              value={newPost.title}
-              onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Автор</label>
-            <input
-              type="text"
-              value={newPost.author}
-              onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">URL изображения</label>
-            <input
-              type="url"
-              value={newPost.image_url}
-              onChange={(e) => setNewPost({ ...newPost, image_url: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Содержание</label>
-            <textarea
-              value={newPost.content}
-              onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-              rows={4}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Добавить пост
-          </button>
+      <form onSubmit={handleSubmit} className="mb-8 space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Заголовок</label>
+          <input
+            type="text"
+            value={newPost.title}
+            onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+            className="w-full p-2 border rounded"
+            required
+          />
         </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Содержание</label>
+          <textarea
+            value={newPost.content}
+            onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+            className="w-full p-2 border rounded h-32"
+            required
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Автор</label>
+          <input
+            type="text"
+            value={newPost.author}
+            onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">URL изображения</label>
+          <input
+            type="text"
+            value={newPost.image_url}
+            onChange={(e) => setNewPost({ ...newPost, image_url: e.target.value })}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">ID категории</label>
+          <input
+            type="text"
+            value={newPost.category_id}
+            onChange={(e) => setNewPost({ ...newPost, category_id: e.target.value })}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Теги (через запятую)</label>
+          <input
+            type="text"
+            value={newPost.tags.join(', ')}
+            onChange={(e) => setNewPost({ 
+              ...newPost, 
+              tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
+            })}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Создать пост
+        </button>
       </form>
 
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Существующие посты</h2>
         {posts.map((post) => (
-          <div key={post.id} className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-lg font-medium">{post.title}</h3>
-            <p className="text-sm text-gray-500">
-              Автор: {post.author} | Дата: {new Date(post.created_at).toLocaleDateString('ru-RU')}
-            </p>
-            <p className="mt-2">{post.content}</p>
-            {post.image_url && (
-              <p className="text-sm text-gray-500 mt-2">
-                Изображение: {post.image_url}
-              </p>
-            )}
+          <div key={post.id} className="border p-4 rounded">
+            <h3 className="font-medium">{post.title}</h3>
+            <p className="text-sm text-gray-600">Автор: {post.author}</p>
+            <p className="text-sm text-gray-600">Дата: {new Date(post.created_at).toLocaleDateString()}</p>
           </div>
         ))}
       </div>
