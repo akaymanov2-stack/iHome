@@ -15,32 +15,27 @@ export interface BlogPost {
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching blog posts:', error);
-    return [];
+  const response = await fetch('/api/blog');
+  if (!response.ok) {
+    throw new Error('Failed to fetch blog posts');
   }
-
-  return data || [];
+  return response.json();
 }
 
-export async function createBlogPost(post: Omit<BlogPost, 'id' | 'created_at'>): Promise<BlogPost | null> {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert([post])
-    .select()
-    .single();
+export async function createBlogPost(post: Omit<BlogPost, 'id' | 'created_at'>): Promise<BlogPost> {
+  const response = await fetch('/api/blog', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(post),
+  });
 
-  if (error) {
-    console.error('Error creating blog post:', error);
-    return null;
+  if (!response.ok) {
+    throw new Error('Failed to create blog post');
   }
 
-  return data;
+  return response.json();
 }
 
 export async function getBlogPostById(id: string): Promise<BlogPost | null> {
