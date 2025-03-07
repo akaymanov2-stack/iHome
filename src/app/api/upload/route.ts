@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const publicUrl = supabase.storage.from('your-bucket-name').getPublicUrl(data.path);
+  const { publicUrl } = supabase.storage.from('your-bucket-name').getPublicUrl(data.path);
 
-  return NextResponse.json({ url: publicUrl.publicURL });
+  return NextResponse.json({ url: publicUrl });
 } 
