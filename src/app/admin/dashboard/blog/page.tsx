@@ -17,6 +17,7 @@ export default function BlogManagement() {
     category_id: '',
     tags: [] as string[]
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,8 +52,29 @@ export default function BlogManagement() {
     }
   }
 
+  async function handleImageUpload() {
+    if (!imageFile) return;
+
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      console.error('Error uploading image');
+      return;
+    }
+
+    const { url } = await response.json();
+    setNewPost({ ...newPost, image_url: url });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    await handleImageUpload();
     try {
       const post = await createBlogPost(newPost);
       if (post) {
@@ -124,11 +146,10 @@ export default function BlogManagement() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium mb-1">URL изображения</label>
+          <label className="block text-sm font-medium mb-1">Загрузить изображение</label>
           <input
-            type="text"
-            value={newPost.image_url}
-            onChange={(e) => setNewPost({ ...newPost, image_url: e.target.value })}
+            type="file"
+            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
             className="w-full p-2 border rounded"
           />
         </div>
