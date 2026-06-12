@@ -18,6 +18,7 @@ export default function BlogManagement() {
     tags: [] as string[]
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,8 +53,8 @@ export default function BlogManagement() {
     }
   }
 
-  async function handleImageUpload() {
-    if (!imageFile) return;
+  async function handleImageUpload(): Promise<string | null> {
+    if (!imageFile) return null;
 
     const formData = new FormData();
     formData.append('file', imageFile);
@@ -64,19 +65,20 @@ export default function BlogManagement() {
     });
 
     if (!response.ok) {
-      console.error('Error uploading image');
-      return;
+      throw new Error('Ошибка при загрузке изображения');
     }
 
     const { url } = await response.json();
-    setNewPost({ ...newPost, image_url: url });
+    return url;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await handleImageUpload();
+    setError(null);
+    setSubmitting(true);
     try {
-      const post = await createBlogPost(newPost);
+      const image_url = await handleImageUpload();
+      const post = await createBlogPost({ ...newPost, image_url: image_url ?? newPost.image_url });
       if (post) {
         setPosts([post, ...posts]);
         setNewPost({
@@ -87,10 +89,13 @@ export default function BlogManagement() {
           category_id: '',
           tags: []
         });
+        setImageFile(null);
       }
     } catch (error) {
-      setError('Ошибка при создании поста');
+      setError(error instanceof Error ? error.message : 'Ошибка при создании поста');
       console.error('Error creating post:', error);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -187,9 +192,10 @@ export default function BlogManagement() {
         
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          disabled={submitting}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Создать пост
+          {submitting ? 'Сохранение...' : 'Создать пост'}
         </button>
       </form>
 

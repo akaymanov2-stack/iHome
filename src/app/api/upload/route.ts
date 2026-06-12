@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   }
 
   const { data, error } = await supabase.storage
-    .from('your-bucket-name')
+    .from('blog-images')
     .upload(`images/${file.name}`, file, {
       cacheControl: '3600',
       upsert: false
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const { publicUrl } = supabase.storage.from('your-bucket-name').getPublicUrl(data.path);
+  const { data: { publicUrl } } = supabase.storage.from('blog-images').getPublicUrl(data.path);
 
   return NextResponse.json({ url: publicUrl });
 } 
