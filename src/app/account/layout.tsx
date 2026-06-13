@@ -7,13 +7,16 @@ import Link from 'next/link';
 const NAV_ITEMS = [
   { href: '/account', label: 'Обзор' },
   { href: '/account/profile', label: 'Профиль' },
-  { href: '/admin/dashboard/blog', label: 'Управление блогом' },
 ];
+
+const CAN_MANAGE_POSTS_ROLES = ['admin', 'editor', 'author'];
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [checked, setChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [canManagePosts, setCanManagePosts] = useState(false);
 
   useEffect(() => {
     const isAuth = localStorage.getItem('adminAuth');
@@ -22,6 +25,16 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
       return;
     }
     setChecked(true);
+
+    const identifier = localStorage.getItem('adminIdentifier');
+    if (identifier) {
+      fetch(`/api/auth/profile?identifier=${encodeURIComponent(identifier)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          setIsAdmin(data?.role === 'admin');
+          setCanManagePosts(CAN_MANAGE_POSTS_ROLES.includes(data?.role));
+        });
+    }
   }, [router]);
 
   const handleLogout = () => {
@@ -65,6 +78,22 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                 </Link>
               );
             })}
+            {canManagePosts && (
+              <Link
+                href="/admin/panel/posts"
+                className="px-3 py-2 text-sm font-medium rounded-t-md text-gray-500 hover:text-gray-700"
+              >
+                Управление блогом
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                href="/admin/panel"
+                className="px-3 py-2 text-sm font-medium rounded-t-md text-gray-500 hover:text-gray-700"
+              >
+                Админ-панель
+              </Link>
+            )}
           </nav>
 
           {children}

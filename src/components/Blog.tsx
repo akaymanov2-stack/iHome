@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getBlogPosts, type BlogPost } from '@/utils/supabase';
+import { getPublishedBlogPosts, type BlogPost } from '@/utils/supabase';
 
 export default function BlogComponent() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -13,7 +13,7 @@ export default function BlogComponent() {
   useEffect(() => {
     async function loadPosts() {
       try {
-        const fetchedPosts = await getBlogPosts();
+        const fetchedPosts = await getPublishedBlogPosts();
         setPosts(fetchedPosts);
       } catch (err) {
         setError('Ошибка при загрузке постов');
@@ -94,7 +94,7 @@ export default function BlogComponent() {
                   {post.title}
                 </h2>
                 <p className="text-gray-600 mb-4 line-clamp-3">
-                  {post.content}
+                  {post.excerpt || post.content}
                 </p>
                 <Link 
                   href={`/blog/${post.id}`}

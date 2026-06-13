@@ -1,7 +1,8 @@
 import Image from 'next/image';
-import { getBlogPostById, BlogPost } from '@/utils/supabase';
+import { Metadata } from 'next';
+import { marked } from 'marked';
+import { getPublishedBlogPostById } from '@/utils/supabase';
 import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import Comments from '@/components/Comments';
 import ShareButtons from '@/components/ShareButtons';
 import RelatedPosts from '@/components/RelatedPosts';
@@ -12,10 +13,25 @@ interface BlogPostPageProps {
   };
 }
 
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const post = await getPublishedBlogPostById(params.id);
+  if (!post) return {};
+
+  return {
+    title: post.meta_title || post.title,
+    description: post.meta_description || post.excerpt || undefined,
+    openGraph: {
+      title: post.meta_title || post.title,
+      description: post.meta_description || post.excerpt || undefined,
+      images: post.og_image || post.image_url ? [post.og_image || post.image_url!] : undefined,
+    },
+  };
+}
+
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   try {
-    const post = await getBlogPostById(params.id);
-    
+    const post = await getPublishedBlogPostById(params.id);
+
     if (!post) {
       notFound();
     }
@@ -56,7 +72,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               />
             </div>
           )}
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: marked.parse(post.content) as string }} />
         </div>
 
         <div className="border-t pt-8">
@@ -77,6 +93,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </article>
     );
   } catch (error) {
+    if (error instanceof Error && (error as { digest?: string }).digest === 'NEXT_NOT_FOUND') {
+      throw error;
+    }
     console.error('Error in blog post page:', error);
     throw new Error('Failed to load blog post');
   }

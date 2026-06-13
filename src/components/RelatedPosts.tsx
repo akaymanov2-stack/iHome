@@ -24,6 +24,7 @@ export default function RelatedPosts({ currentPostId, categoryId, tags }: Relate
     let query = supabase
       .from('blog_posts')
       .select('*')
+      .eq('status', 'published')
       .neq('id', currentPostId)
       .limit(3);
 

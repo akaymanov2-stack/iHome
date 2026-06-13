@@ -94,6 +94,7 @@ export default function BlogManagement() {
         ...newPost,
         image_url: image_url ?? newPost.image_url,
         author_id: authorId ?? undefined,
+        identifier: localStorage.getItem('adminIdentifier'),
       });
       if (post) {
         setPosts([post, ...posts]);

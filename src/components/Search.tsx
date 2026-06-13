@@ -17,6 +17,7 @@ export default function Search() {
         const { data, error } = await supabase
           .from('blog_posts')
           .select('*')
+          .eq('status', 'published')
           .textSearch('search_vector', query, {
             type: 'websearch',
             config: 'russian'

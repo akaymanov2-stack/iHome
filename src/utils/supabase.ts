@@ -12,6 +12,8 @@ export interface Category {
   created_at: string;
 }
 
+export type PostStatus = 'draft' | 'review' | 'scheduled' | 'published' | 'archived';
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -25,6 +27,13 @@ export interface BlogPost {
   updated_at: string;
   category?: Category;
   author_user?: { avatar_url?: string | null } | null;
+  slug?: string | null;
+  status: PostStatus;
+  scheduled_at?: string | null;
+  excerpt?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  og_image?: string | null;
 }
 
 export interface CreateBlogPostInput {
@@ -35,6 +44,14 @@ export interface CreateBlogPostInput {
   image_url?: string;
   category_id: string;
   tags: string[];
+  identifier?: string | null;
+  slug?: string;
+  status?: PostStatus;
+  scheduled_at?: string | null;
+  excerpt?: string;
+  meta_title?: string;
+  meta_description?: string;
+  og_image?: string;
 }
 
 export async function getCategories(): Promise<Category[]> {
@@ -79,6 +96,30 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
+export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        category:categories(*),
+        author_user:users(avatar_url)
+      `)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching published blog posts:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getPublishedBlogPosts:', error);
+    throw new Error('Failed to fetch blog posts');
+  }
+}
+
 export async function createBlogPost(post: CreateBlogPostInput): Promise<BlogPost> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog`, {
     method: 'POST',
@@ -118,6 +159,34 @@ export async function getBlogPostById(id: string): Promise<BlogPost | null> {
     return data;
   } catch (error) {
     console.error('Error in getBlogPostById:', error);
+    throw new Error('Failed to fetch blog post');
+  }
+}
+
+export async function getPublishedBlogPostById(id: string): Promise<BlogPost | null> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        category:categories(*),
+        author_user:users(avatar_url)
+      `)
+      .eq('id', id)
+      .eq('status', 'published')
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      console.error('Error fetching published blog post:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getPublishedBlogPostById:', error);
     throw new Error('Failed to fetch blog post');
   }
 } 

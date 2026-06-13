@@ -23,6 +23,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     .from('blog_posts')
     .select('id, title, created_at, image_url')
     .eq('author_id', user.id)
+    .eq('status', 'published')
     .order('created_at', { ascending: false });
 
   const socialLinks: { website?: string; twitter?: string; github?: string } = user.social_links || {};
