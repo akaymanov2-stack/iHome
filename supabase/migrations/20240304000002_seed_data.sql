@@ -1,10 +1,3 @@
--- Добавление тестовых категорий
-INSERT INTO categories (name, slug) VALUES
-    ('Интерьер', 'interior'),
-    ('Ремонт', 'repair'),
-    ('Дизайн', 'design'),
-    ('Советы', 'tips');
-
 -- Добавление тестовых постов
 INSERT INTO blog_posts (title, content, author, image_url, category_id, tags) 
 SELECT 

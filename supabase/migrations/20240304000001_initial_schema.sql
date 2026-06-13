@@ -1,5 +1,10 @@
 -- Удаление существующих таблиц и зависимостей
-DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
+DO $$
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'blog_posts') THEN
+    DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
+  END IF;
+END $$;
 DROP FUNCTION IF EXISTS update_updated_at_column();
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS blog_posts;

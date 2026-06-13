@@ -75,12 +75,6 @@ const Footer = () => {
             <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
               Условия использования
             </Link>
-            <Link 
-              href="/admin/login" 
-              className="text-gray-400 hover:text-white text-sm transition-colors border-l border-gray-700 pl-6"
-            >
-              Войти
-            </Link>
           </div>
         </div>
       </div>

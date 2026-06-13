@@ -80,6 +80,14 @@ export default function BlogComponent() {
                 <div className="flex items-center text-sm text-gray-500 mb-4">
                   <span>{new Date(post.created_at).toLocaleDateString('ru-RU')}</span>
                   <span className="mx-2">•</span>
+                  {post.author_user?.avatar_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={post.author_user.avatar_url}
+                      alt={post.author}
+                      className="w-5 h-5 rounded-full object-cover mr-1"
+                    />
+                  )}
                   <span>{post.author}</span>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-3">

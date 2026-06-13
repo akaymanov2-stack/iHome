@@ -7,7 +7,8 @@ export async function GET() {
       .from('blog_posts')
       .select(`
         *,
-        category:categories(*)
+        category:categories(*),
+        author_user:users(avatar_url)
       `)
       .order('created_at', { ascending: false });
 
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
           title: body.title,
           content: body.content,
           author: body.author,
+          author_id: body.author_id || null,
           image_url: body.image_url,
           category_id: body.category_id,
           tags: body.tags,
@@ -42,7 +44,8 @@ export async function POST(request: Request) {
       ])
       .select(`
         *,
-        category:categories(*)
+        category:categories(*),
+        author_user:users(avatar_url)
       `)
       .single();
 

@@ -18,17 +18,20 @@ export interface BlogPost {
   content: string;
   created_at: string;
   author: string;
+  author_id?: string;
   image_url?: string;
   category_id: string;
   tags: string[];
   updated_at: string;
   category?: Category;
+  author_user?: { avatar_url?: string | null } | null;
 }
 
 export interface CreateBlogPostInput {
   title: string;
   content: string;
   author: string;
+  author_id?: string;
   image_url?: string;
   category_id: string;
   tags: string[];
@@ -59,7 +62,8 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       .from('blog_posts')
       .select(`
         *,
-        category:categories(*)
+        category:categories(*),
+        author_user:users(avatar_url)
       `)
       .order('created_at', { ascending: false });
 
@@ -97,7 +101,8 @@ export async function getBlogPostById(id: string): Promise<BlogPost | null> {
       .from('blog_posts')
       .select(`
         *,
-        category:categories(*)
+        category:categories(*),
+        author_user:users(avatar_url)
       `)
       .eq('id', id)
       .single();

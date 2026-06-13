@@ -19,6 +19,7 @@ export default function BlogManagement() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [authorId, setAuthorId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -27,7 +28,18 @@ export default function BlogManagement() {
       router.push('/admin/login');
       return;
     }
-    
+
+    const identifier = localStorage.getItem('adminIdentifier');
+    if (identifier) {
+      fetch(`/api/auth/profile?identifier=${encodeURIComponent(identifier)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.id) {
+            setAuthorId(data.id);
+          }
+        });
+    }
+
     loadPosts();
     loadCategories();
   }, [router]);
@@ -78,7 +90,11 @@ export default function BlogManagement() {
     setSubmitting(true);
     try {
       const image_url = await handleImageUpload();
-      const post = await createBlogPost({ ...newPost, image_url: image_url ?? newPost.image_url });
+      const post = await createBlogPost({
+        ...newPost,
+        image_url: image_url ?? newPost.image_url,
+        author_id: authorId ?? undefined,
+      });
       if (post) {
         setPosts([post, ...posts]);
         setNewPost({

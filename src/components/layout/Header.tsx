@@ -33,6 +33,9 @@ const Header: React.FC = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
+            <Link href="/admin/login" className="hidden md:block px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+              Войти
+            </Link>
             <button className="hidden md:block px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
               Связаться с нами
             </button>
