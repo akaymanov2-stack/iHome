@@ -29,7 +29,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const socialLinks: { website?: string; twitter?: string; github?: string } = user.social_links || {};
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 pt-24 pb-8">
       <div className="flex items-center gap-4 mb-6">
         {user.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element

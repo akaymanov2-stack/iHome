@@ -40,7 +40,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${post.id}`;
 
     return (
-      <article className="max-w-4xl mx-auto px-4 py-8">
+      <article className="max-w-4xl mx-auto px-4 pt-24 pb-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
           <div className="flex items-center text-gray-600 mb-4">

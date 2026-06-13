@@ -11,9 +11,12 @@ const Header: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMobileMenuOpen(false);
+
     const identifier = localStorage.getItem('adminIdentifier');
     if (!localStorage.getItem('adminAuth') || !identifier) {
       setLoggedIn(false);
@@ -133,13 +136,58 @@ const Header: React.FC = () => {
             <button className="hidden md:block px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
               Связаться с нами
             </button>
-            <button className="md:hidden">
+            <button className="md:hidden" onClick={() => setMobileMenuOpen((open) => !open)} aria-label="Меню">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
               </svg>
             </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <nav className="md:hidden border-t flex flex-col py-2">
+            <Link href="/products" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+              Инструменты
+            </Link>
+            <Link href="/solutions" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+              Кейсы
+            </Link>
+            <Link href="/about" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+              О нас
+            </Link>
+            <Link href="/blog" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+              Блог о WEB3
+            </Link>
+            <div className="border-t my-2" />
+            {loggedIn ? (
+              <>
+                <Link href="/account/posts" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+                  Мои публикации
+                </Link>
+                <Link href="/account/likes" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+                  Понравилось
+                </Link>
+                <Link href="/account" className="px-2 py-2 text-gray-700 hover:text-blue-600 transition-colors">
+                  Личный кабинет
+                </Link>
+                <button onClick={handleLogout} className="px-2 py-2 text-left text-gray-700 hover:text-blue-600 transition-colors">
+                  Выйти
+                </button>
+              </>
+            ) : (
+              <Link href="/admin/login" className="px-2 py-2 text-blue-600 font-medium">
+                Войти
+              </Link>
+            )}
+            <button className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+              Связаться с нами
+            </button>
+          </nav>
+        )}
       </div>
     </header>
   );
