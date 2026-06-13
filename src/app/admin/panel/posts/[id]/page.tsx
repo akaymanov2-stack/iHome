@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getBlogPostById, getCategories, type Category, type BlogPost } from '@/utils/supabase';
+import { compressImage, checkImageSize } from '@/utils/imageCompression';
 import PostForm, { type PostFormValues } from '../PostForm';
 
 export default function AdminPostEditPage() {
@@ -53,8 +54,11 @@ export default function AdminPostEditPage() {
 
   async function handleImageUpload(imageFile: File | null): Promise<string | null> {
     if (!imageFile) return null;
+    const compressed = await compressImage(imageFile);
+    const sizeError = checkImageSize(compressed);
+    if (sizeError) throw new Error(sizeError);
     const formData = new FormData();
-    formData.append('file', imageFile);
+    formData.append('file', compressed);
     formData.append('identifier', adminIdentifier ?? '');
     const response = await fetch('/api/upload', { method: 'POST', body: formData });
     if (!response.ok) throw new Error('Ошибка при загрузке изображения');

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBlogPosts, createBlogPost, type BlogPost, getCategories, Category } from '@/utils/supabase';
+import { compressImage, checkImageSize } from '@/utils/imageCompression';
 
 export default function BlogManagement() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -68,8 +69,12 @@ export default function BlogManagement() {
   async function handleImageUpload(): Promise<string | null> {
     if (!imageFile) return null;
 
+    const compressed = await compressImage(imageFile);
+    const sizeError = checkImageSize(compressed);
+    if (sizeError) throw new Error(sizeError);
+
     const formData = new FormData();
-    formData.append('file', imageFile);
+    formData.append('file', compressed);
 
     const response = await fetch('/api/upload', {
       method: 'POST',

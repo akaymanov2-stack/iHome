@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { compressImage, checkImageSize } from '@/utils/imageCompression';
 
 interface SocialLinks {
   website?: string;
@@ -142,8 +143,15 @@ export default function AccountProfile() {
     setUploadingAvatar(true);
 
     try {
+      const compressed = await compressImage(file);
+      const sizeError = checkImageSize(compressed);
+      if (sizeError) {
+        setAvatarError(sizeError);
+        return;
+      }
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressed);
       formData.append('identifier', identifier);
 
       const res = await fetch('/api/auth/avatar', {
