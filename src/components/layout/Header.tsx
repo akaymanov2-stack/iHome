@@ -94,7 +94,28 @@ const Header: React.FC = () => {
                   )}
                 </button>
                 {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border py-1 z-50">
+                    <Link
+                      href="/account/posts"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Мои публикации
+                    </Link>
+                    <Link
+                      href="/account/likes"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Понравилось
+                    </Link>
+                    <Link
+                      href="/account"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Личный кабинет
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

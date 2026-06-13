@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import Comments from '@/components/Comments';
 import ShareButtons from '@/components/ShareButtons';
 import RelatedPosts from '@/components/RelatedPosts';
+import LikeButton from '@/components/LikeButton';
 
 interface BlogPostPageProps {
   params: {
@@ -75,7 +76,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: marked.parse(post.content) as string }} />
         </div>
 
-        <div className="border-t pt-8">
+        <div className="border-t pt-8 flex items-center justify-between flex-wrap gap-4">
+          <LikeButton postId={post.id} />
           <ShareButtons url={postUrl} title={post.title} />
         </div>
 
