@@ -45,10 +45,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
           <div className="flex items-center text-gray-600 mb-4">
             {post.author_user?.avatar_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={post.author_user.avatar_url}
                 alt={post.author}
+                width={32}
+                height={32}
                 className="w-8 h-8 rounded-full object-cover mr-2"
               />
             )}
