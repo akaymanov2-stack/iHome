@@ -49,7 +49,13 @@ export default function AccountOverview() {
               {profile?.display_name || profile?.identifier || '—'}
             </h2>
             <p className="text-sm text-gray-500">
-              {profile?.role === 'author' ? 'Автор' : 'Читатель'}
+              {profile?.role === 'admin'
+                ? 'Администратор'
+                : profile?.role === 'editor'
+                  ? 'Редактор'
+                  : profile?.role === 'author'
+                    ? 'Автор'
+                    : 'Читатель'}
             </p>
           </div>
         </div>
